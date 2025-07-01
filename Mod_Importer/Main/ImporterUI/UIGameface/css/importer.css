@@ -1,0 +1,52 @@
+.ImporterMenu_root {
+    position: absolute;
+    left: 0rem;
+    right: 0rem;
+    top: 0rem;
+    bottom: 0rem;
+}
+
+.ImporterMenu_content {
+    margin-left: -0.04rem;
+    margin-top: 87vh;
+    display: flex;
+    flex-direction: column;
+    align-self: flex-start;
+    pointer-events: auto;
+    justify-content: flex-start;
+    align-items: center;
+    padding: 0.5rem;
+}
+
+.ImporterMenu_content .ManagementMenuButton_root {
+    --size: 1.944444rem;
+    width: var(--size);
+    height: var(--size);
+    min-width: var(--size);
+    min-height: var(--size);
+    max-width: var(--size);
+    max-height: var(--size);
+    box-sizing: border-box;
+}
+
+.ImporterMenu_content .ManagementMenuButton_icon {
+    --size: 1.166666rem;
+    width: var(--size);
+    height: var(--size);
+    min-width: var(--size);
+    min-height: var(--size);
+    max-width: var(--size);
+    max-height: var(--size);
+}
+
+/* .ImporterMenu_content>div+div {
+    margin-top: 0.5rem;
+}
+
+.ImporterMenu_content.hidden {
+    display: none;
+}
+
+.ImporterMenu_content.alerts {
+    margin-top: 0;
+} */

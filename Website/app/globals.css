@@ -1,0 +1,14 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@import "@catppuccin/tailwindcss/mocha.css";
+
+@layer base {
+  * {
+    @apply border-ctp-surface0 outline-ctp-crust/50;
+  }
+
+  body {
+    @apply bg-ctp-base text-ctp-text;
+  }
+}
