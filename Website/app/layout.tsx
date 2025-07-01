@@ -14,6 +14,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <head>
+        <meta name="apple-mobile-web-app-title" content="PC:CC" />
+      </head>
       <body className="min-h-screen bg-ctp-base text-ctp-text flex flex-col">
         {children}
 

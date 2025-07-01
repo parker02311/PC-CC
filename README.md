@@ -1,4 +1,4 @@
-<h1 align="center">Planet Coaster : Coaster Converter</h1>
+<h1 align="center"> <img src="/Website/app/icon0.svg" alt="Icon" height=35 style="vertical-align: middle;" /> Planet Coaster : Coaster Converter</h1>
 
 <div align="center">
 
