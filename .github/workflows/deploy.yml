@@ -17,12 +17,12 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: Website
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-
-      - name: CD to website directory
-        run: cd Website
 
       - name: Detect package manager
         id: detect-package-manager
