@@ -11,9 +11,9 @@ import { convertCsvToLua } from "@/lib/converter"
 // Installation instructions for the modal
 const INSTALLATION_STEPS = [
   "Open your Planet Coaster 2 folder and navigate to Win64/ovldata",
-  "Move your coaster.lua file into the Mod_Importer folder",
+  <p key="step-2">Move your <code className="bg-ctp-surface1 px-1 rounded">coaster.lua</code> file into the Mod_Importer folder</p>,
   "Restart or open Planet Coaster",
-  <p>Open your level and create a coaster with a simple straight track 4 meters in length.
+  <p key="step-4">Open your level and create a coaster with a simple straight track 4 meters in length.
     <br /><strong>Do not close the coaster editor</strong></p>,
   "Click the PC:CC button",
   "Click accept to import your coaster!"
@@ -38,7 +38,7 @@ export default function CoasterConverter() {
       const csvContent = await file.text()
 
       // Convert CSV to Lua using the real converter
-      const convertedContent = convertCsvToLua(csvContent, file.name)
+      const convertedContent = convertCsvToLua(csvContent)
 
       // Create and download the converted file
       const blob = new Blob([convertedContent], { type: "text/plain" })
@@ -125,7 +125,7 @@ export default function CoasterConverter() {
         <p className="mt-4 text-sm text-ctp-subtext1 text-center">
           All conversions are done locally in your browser. No data is sent to any server.
           <br />
-          View the source code <a target="_blank" href="https://github.com/" className="text-ctp-mauve hover:text-ctp-pink transition-all">here</a>.
+          View the source code <a target="_blank" href="https://github.com/parker02311/PC-CC/" className="text-ctp-mauve hover:text-ctp-pink transition-all">here</a>.
         </p>
       </main>
 
@@ -146,13 +146,7 @@ export default function CoasterConverter() {
                     {index + 1}
                   </span>
                   <span>
-                    {index === 1 ? (
-                      <>
-                        Move your <code className="bg-ctp-surface1 px-1 rounded">coaster.lua</code> file into the Mod_Importer folder
-                      </>
-                    ) : (
-                      step
-                    )}
+                    {step}
                   </span>
                 </li>
               ))}

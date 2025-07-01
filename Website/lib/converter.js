@@ -133,7 +133,8 @@ function pfuToRelPosYpr(posForwardsUps) {
 
     // Extract the first point as reference origin and orientation
     const firstPos = posForwardsUps[0][0];
-    const [firstY, firstP, firstR] = vectorsToEuler(posForwardsUps[0][1], posForwardsUps[0][2]);
+    // firstP, firstR
+    const [firstY] = vectorsToEuler(posForwardsUps[0][1], posForwardsUps[0][2]);
 
     // Process each point relative to the first point
     for (const [pos, forward, up] of posForwardsUps) {
@@ -206,7 +207,7 @@ function getPosForwardsUps(csvContent) {
  * @param {string} originalFilename - Original filename for reference
  * @returns {string} Lua formatted track data
  */
-export function convertCsvToLua(csvContent, originalFilename = 'converted_track') {
+export function convertCsvToLua(csvContent) {
     try {
         // Parse the CSV content and extract position, forward, and up vectors
         const posForwardsUps = getPosForwardsUps(csvContent);
