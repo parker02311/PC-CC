@@ -17,7 +17,7 @@ This mod allows you to import a Lua file containing coaster data into Planet Coa
 > [!WARNING]
 > This mod requires [ACSE](https://www.nexusmods.com/planetcoaster2/mods/1) to work. Make sure you have it installed before proceeding.
 
-1. Download the latest release from the [Releases page]()
+1. Download the latest release from the [Releases page](https://github.com/parker02311/PC-CC/releases/latest).
 2. Extract the contents of the ZIP file into your `Planet Coaster 2/Win64/ovldata`.
 
 Modding is not supported by Frontier, so use this mod at your own risk. It may cause unexpected behavior in the game.
