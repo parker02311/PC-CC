@@ -1,4 +1,4 @@
-<h1 align="center"> <img src="/Website/app/icon0.svg" alt="Icon" height=35 style="vertical-align: middle;" /> Planet Coaster : Coaster Converter</h1>
+<h1 align="center"> <img src="/Website/app/icon0.svg" alt="Icon" height=35 width=35 style="vertical-align: middle;" /> Planet Coaster : Coaster Converter</h1>
 
 <div align="center">
 
@@ -27,10 +27,34 @@ Modding is not supported by Frontier, so use this mod at your own risk. It may c
 We have a website that allows you to convert NL2 CSV files to Lua files that can be imported into Planet Coaster 2.
 
 ## Usage
-1. Go to the website.
+1. Go to the [Website](https://pccc.redon.tech).
 2. Upload your NL2 CSV file. (If you do not own a professional copy of NL2, you can use the NL2 CSV Exporter)
 3. The website will process the file and provide you with a Lua file.
 4. Follow the instructions provided by the website to add the Lua file to your game.
+
+# Development
+
+## Building the Mod
+
+To build the mod you must have Cobra Tools installed.
+
+1. Package the UI (only necessary if you have made changes to the UI):
+   - Open a terminal in the `Mod_Importer/Main` directory.
+   - Run `python PPUIPkgFile.py -i ImporterUI.ppuipkg`
+2. Run `Cobra Tools/ovl_tool_gui.py`
+3. In the GUI go Edit -> Preferences `Flatten LUA subfolders` option to `True`.
+4. Go File -> New and select the `Mod_Importer/Main` folder.
+5. Click File -> Save
+
+## Local Website Development
+
+To run the NL2 CSV to Lua converter website locally, you need to have Node.js installed.
+
+1. Open a terminal in the `Website` directory.
+2. Run `npm install` to install the required dependencies.
+3. Run `npm run dev` to start the development server.
+
+The website will automatically build when the repository updates. However, it is recommended to run `npm run build` to ensure that type/lint checks pass before committing changes.
 
 # Credits
 
