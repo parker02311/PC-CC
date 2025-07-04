@@ -1,19 +1,17 @@
 local global = _G
 ---@diagnostic disable-next-line: undefined-field
 local api = global.api ---@type Api
-local pairs = global.pairs
 local ipairs = global.ipairs
 local require = global.require
 local module = global.module
 local loadfile = global.loadfile
 local tostring = global.tostring
-local type = global.type
-local math = global.math
 local coroutine = global.coroutine
 
 local Vector3 = require("Vector3") ---@type Vector3
 local table = require("Common.tableplus")
 local Mutators = require("Environment.ModuleMutators")
+local GameDatabase = require("Database.GameDatabase")
 
 local ImporterUI = require("UI.Mod_Importer") ---@type ImporterUI
 local utils = require("Utils.Mod_Importer") ---@type Mod_ImporterUtils
@@ -26,6 +24,7 @@ local utils = require("Utils.Mod_Importer") ---@type Mod_ImporterUtils
 ---@field TrackedRideDatabase WorldAPIs_trackedridedatabase
 ---@field previewToken string|nil
 ---@field coroutine thread
+---@field InEditor boolean
 local ImporterUIManager = module(..., Mutators.Manager())
 
 ImporterUIManager.Init = function(self, _tProperties, _tEnvironment)
@@ -43,6 +42,24 @@ ImporterUIManager.Init = function(self, _tProperties, _tEnvironment)
 					self:ImportCoaster()
 				end)
 			end, self)
+
+			self.ui:AddListener_ImporterAccept(function()
+				self.coroutine = coroutine.create(function()
+					self:ImportConfirm()
+				end)
+			end, self)
+
+			self.ui:AddListener_ImporterCancel(function()
+				self.coroutine = coroutine.create(function()
+					self:ImportCancel()
+				end)
+			end, self)
+
+			if self.InEditor then
+				self.ui:Show()
+			else
+				self.ui:Hide()
+			end
 		end
 	end)
 end
@@ -57,12 +74,44 @@ ImporterUIManager.Advance = function(self)
 		api.debug.Trace("Resuming coroutine")
 		coroutine.resume(self.coroutine)
 	end
+	local inEditor = GameDatabase.ImporterInEditMode()
+	if inEditor == true and self.InEditor ~= true then
+		self.InEditor = true
+		if self.ui then
+			api.debug.Trace("Showing ImporterUI")
+			self.ui:Show()
+		end
+	elseif inEditor == false and self.InEditor == true then
+		self.InEditor = false
+		if self.ui then
+			api.debug.Trace("Hiding ImporterUI")
+			self.ui:Hide()
+		end
+	end
+end
+
+ImporterUIManager.ImportCancel = function(self)
+	api.debug.Trace("ImporterUIManager:ImportCancel()")
+	if self.previewToken then
+		api.debug.Trace("Cancelling preview")
+		self:WaitFor(api.undo.CancelPreview(self.previewToken))
+		self.previewToken = nil
+		self.ui:SetButtonsShow(false)
+	end
+end
+
+ImporterUIManager.ImportConfirm = function(self)
+	api.debug.Trace("ImporterUIManager:ImportConfirm()")
+	if self.previewToken then
+		self:TryCommit(self.previewToken)
+		self.previewToken = nil
+		self.ui:SetButtonsShow(false)
+	end
 end
 
 ImporterUIManager.ImportCoaster = function(self)
 	api.debug.Trace("ImporterUIManager:ImportCoaster()")
 	if self.previewToken then
-		self:TryCommit(self.previewToken)
 		return
 	end
 
@@ -148,6 +197,8 @@ ImporterUIManager.ImportCoaster = function(self)
 			api.track.AddSelection(changelist, segment, api.track.PreviewAdd, false, false, true)
 		end
 	end)
+
+	self.ui:SetButtonsShow(true)
 end
 
 --- Gets a free point on the track holder that is a valid out point.

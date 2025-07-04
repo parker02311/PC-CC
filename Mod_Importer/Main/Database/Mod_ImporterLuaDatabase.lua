@@ -5,9 +5,7 @@ local pairs = global.pairs
 local module = global.module
 local require = global.require
 local tostring = global.tostring
-local type = global.type
 
-local ImporterUI = require("UI.Mod_Importer")
 local table = require("Common.tableplus")
 local Vector3 = require("Vector3") ---@type Vector3
 
@@ -23,14 +21,12 @@ Mod_ImporterLuaDatabase.AddContentToCall = function(_tContentToCall)
 	table.insert(_tContentToCall, Mod_ImporterLuaDatabase)
 end
 
-local ui = nil
-
 Mod_ImporterLuaDatabase.Init = function()
 	api.debug.Trace("Mod_ImporterLuaDatabase.Init()")
 	api.ui2.MapResources("ImporterUI")
 end
 
-Mod_ImporterLuaDatabase.Shutdown = function(self)
+Mod_ImporterLuaDatabase.Shutdown = function()
 	api.debug.Trace("Mod_ImporterLuaDatabase.Shutdown()")
 	api.ui2.UnmapResources("ImporterUI")
 end
@@ -48,6 +44,18 @@ Mod_ImporterLuaDatabase.AddLuaManagers = function(_fnAdd)
 	end
 end
 
+Mod_ImporterLuaDatabase.tDatabaseFunctions = {
+	ImporterInEditMode = function()
+		return Mod_ImporterLuaDatabase.InEditor
+	end,
+}
+
+Mod_ImporterLuaDatabase.AddDatabaseFunctions = function(_tDatabaseFunctions)
+	for sMethod, fnMethod in pairs(Mod_ImporterLuaDatabase.tDatabaseFunctions) do
+		_tDatabaseFunctions[sMethod] = fnMethod
+	end
+end
+
 local function getTrackHolder(nRideID)
 	return api.track.GetTrackHolder(nRideID)
 end
@@ -57,7 +65,6 @@ local trackHolder = nil
 local createSelection = nil
 local createdSelection = nil
 
-local bitwise = require("Common.Bitwise")
 Mod_ImporterLuaDatabase._Hook_TrackEditSelection = function(tModule)
 	tModule.Importer_RacingStationSelected = tModule.RacingStationSelected
 	tModule.RacingStationSelected = function(self)
@@ -120,8 +127,8 @@ Mod_ImporterLuaDatabase._Hook_TrackEditSelection = function(tModule)
 	end
 end
 
-Mod_ImporterLuaDatabase._Hook_ImporterUIManager_GetTrackHolder = function(tModule)
-	tModule.GetTrackHolder = function(self, nRideID)
+Mod_ImporterLuaDatabase._Hook_ImporterUIManager = function(tModule)
+	tModule.GetTrackHolder = function(self)
 		api.debug.Trace("Mod_ImporterLuaDatabase._Hook_ImporterUIManager_GetTrackHolder()")
 		return trackHolder
 	end
@@ -138,40 +145,25 @@ Mod_ImporterLuaDatabase._Hook_ImporterUIManager_GetTrackHolder = function(tModul
 	end
 end
 
-Mod_ImporterLuaDatabase._Hook_TrackAutoAvoid = function(tModule)
-	tModule.Importer_CannotPlaceSection = tModule.CannotPlaceSection
-	tModule.CannotPlaceSection = function(self, startT, endT)
-		api.debug.Trace("Mod_ImporterLuaDatabase._Hook_TrackAutoAvoid_CannotPlaceSection()")
-		-- function num : 0_3 , upvalues : api
-		local track = self.tActiveData.track
-		local params = self.tEditValues:GetTrackParams(self.sElementName)
-		local flexiColours = self.tEditValues.tFlexiColours
-		api.debug.Trace("track: " .. tostring(track))
-		api.debug.Trace("startT: " .. tostring(startT))
-		api.debug.Trace("endT: " .. tostring(endT))
-		api.debug.Trace("sElementName: " .. tostring(self.sElementName))
-		api.debug.Trace("trackParams: " .. table.tostring(params))
-		api.debug.Trace("tFlexiColours: " .. table.tostring(flexiColours))
-		api.debug.Trace("bTestReversed: " .. tostring(self.bTestReversed))
-		local data = {
-			track = track,
-			startT = startT,
-			endT = endT,
-			sElementName = self.sElementName,
-			params = params,
-			flexiColours = flexiColours,
-			bTestReversed = self.bTestReversed,
-		}
-		local selection =
-			api.track.CreateSelection(track, startT, endT, self.sElementName, params, flexiColours, self.bTestReversed)
-		return selection:CanPlace(self.tActiveData:GetTunnelling(), false) == false
+Mod_ImporterLuaDatabase._Hook_TrackEditMode = function(tModule)
+	tModule.Importer_TransitionIn = tModule.TransitionIn
+	tModule.TransitionIn = function(self, ...)
+		api.debug.Trace("Mod_ImporterLuaDatabase._Hook_TrackEditMode_TransitionIn()")
+		Mod_ImporterLuaDatabase.InEditor = true
+		return self:Importer_TransitionIn(...)
+	end
+	tModule.Importer_TransitionOut = tModule.TransitionOut
+	tModule.TransitionOut = function(self, ...)
+		api.debug.Trace("Mod_ImporterLuaDatabase._Hook_TrackEditMode_TransitionOut()")
+		Mod_ImporterLuaDatabase.InEditor = false
+		return self:Importer_TransitionOut(...)
 	end
 end
 
 Mod_ImporterLuaDatabase.tDefaultHooks = {
+	["Editors.Track.TrackEditMode"] = Mod_ImporterLuaDatabase._Hook_TrackEditMode,
 	["Editors.Track.TrackEditSelection"] = Mod_ImporterLuaDatabase._Hook_TrackEditSelection,
-	["Managers.Mod_Importer.UIManager"] = Mod_ImporterLuaDatabase._Hook_ImporterUIManager_GetTrackHolder,
-	["Editors.Track.TrackEditAutoAvoid"] = Mod_ImporterLuaDatabase._Hook_TrackAutoAvoid,
+	["Managers.Mod_Importer.UIManager"] = Mod_ImporterLuaDatabase._Hook_ImporterUIManager,
 }
 
 Mod_ImporterLuaDatabase.AddLuaHooks = function(_fnAdd)

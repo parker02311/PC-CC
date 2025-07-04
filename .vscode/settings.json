@@ -1,0 +1,14 @@
+{
+    "Lua.runtime.version": "Lua 5.1",
+    "logViewer.watch": [
+        {
+            "title": "Planet Coaster 2",
+            "pattern": "D:\\Steam\\steamapps\\common\\Planet Coaster 2\\*.log",
+        },
+        {
+            "title": "Planet Coaster",
+            "pattern": "D:\\Steam\\steamapps\\common\\Planet Coaster\\*.log",
+        },
+    ],
+    "Lua.workspace.preloadFileSize": 600
+}

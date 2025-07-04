@@ -8,12 +8,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [1.0.0-alpha.1] - 2025-02-07
+## [1.0.0-alpha.2] - 2025-07-04
+
+### Added
+
+- Added a new UI to confirm/cancel the import process.
+
+### Changed
+
+- Made the import button only appear when in the track editor.
+
+## [1.0.0-alpha.1] - 2025-07-01
 
 ### Added
 
 - Initial version of the mod.
 - Initial version of the website.
 
-[unreleased]: https://github.com/Redon-Tech/Emergency-Vehicle-Creator/compare/1.0.0-alpha.1...main
+[unreleased]: https://github.com/Redon-Tech/Emergency-Vehicle-Creator/compare/1.0.0-alpha.2...main
 [1.0.0-alpha.1]: https://github.com/Redon-Tech/Emergency-Vehicle-Creator/releases/tag/1.0.0-alpha.1
+[1.0.0-alpha.2]: https://github.com/Redon-Tech/Emergency-Vehicle-Creator/releases/tag/1.0.0-alpha.2

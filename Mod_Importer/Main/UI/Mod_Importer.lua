@@ -9,14 +9,12 @@ local global = _G
 local api = global.api ---@type Api
 local require = global.require
 local module = global.module
-local tostring = global.tostring
 
 local Object = require("Common.object")
 local GamefaceUIWrapper = require("UI.GamefaceUIWrapper")
-local table = require("Common.tableplus")
 
 ---@class ImporterUI
----@field TriggerEventAtNextAdvance fun(self, sEventName: string)
+---@field TriggerEventAtNextAdvance fun(self, sEventName: string, ...)
 ---@field AddGlobalEnvironmentEventListener fun(self, sEventName: string, nPriority: number, fnCallback: function, _self: any): number
 ---@field Shutdown fun(self)
 local ImporterUI = module(..., Object.subclass(GamefaceUIWrapper))
@@ -50,7 +48,23 @@ ImporterUI.Hide = function(self)
 	self:TriggerEventAtNextAdvance("Hide")
 end
 
+---@param show boolean
+ImporterUI.SetButtonsShow = function(self, show)
+	api.debug.Trace("ImporterUI.SetButtonsShow()")
+	self:TriggerEventAtNextAdvance("SetButtonsShow", show)
+end
+
 ImporterUI.AddListener_ImporterImport = function(self, _callback, _self)
 	api.debug.Trace("ImporterUI.AddListener_ImporterImport()")
 	return self:AddGlobalEnvironmentEventListener("ImporterImport", 0, _callback, _self)
+end
+
+ImporterUI.AddListener_ImporterAccept = function(self, _callback, _self)
+	api.debug.Trace("ImporterUI.AddListener_ImporterAccept()")
+	return self:AddGlobalEnvironmentEventListener("ImporterAccept", 0, _callback, _self)
+end
+
+ImporterUI.AddListener_ImporterCancel = function(self, _callback, _self)
+	api.debug.Trace("ImporterUI.AddListener_ImporterCancel()")
+	return self:AddGlobalEnvironmentEventListener("ImporterCancel", 0, _callback, _self)
 end
