@@ -83,7 +83,7 @@ Mod_ImporterLuaDatabase._Hook_TrackEditSelection = function(tModule)
 			api.debug.Trace("rstart " .. table.tostring(rstart))
 
 			api.debug.Trace("CreateSelection()")
-			for i = 1, table.count(createSelection.coasterData) do
+			for i = 2, table.count(createSelection.coasterData) do
 				api.debug.Trace("Point " .. table.tostring(i))
 				local vpoint = createSelection.coasterData[i]
 				---@type Vector3

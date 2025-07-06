@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Fixed the cancel/confirm buttons disappearing when a import fails.
+- Fixed the importer not skipping the first point which caused a lot of import errors.
 
 ## [1.0.0-alpha.2] - 2025-07-04
 
