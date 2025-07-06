@@ -103,9 +103,11 @@ end
 ImporterUIManager.ImportConfirm = function(self)
 	api.debug.Trace("ImporterUIManager:ImportConfirm()")
 	if self.previewToken then
-		self:TryCommit(self.previewToken)
-		self.previewToken = nil
-		self.ui:SetButtonsShow(false)
+		local success = self:TryCommit(self.previewToken)
+		if success then
+			self.previewToken = nil
+			self.ui:SetButtonsShow(false)
+		end
 	end
 end
 
@@ -250,11 +252,13 @@ end
 --- If it cannot commit, it will show a failure popup with the reasons why it cannot commit.
 ---@param self ImporterUIManager
 ---@param previewToken string
+---@return boolean
 ImporterUIManager.TryCommit = function(self, previewToken)
 	local canCommit = api.undo.CanCommitPreview(previewToken)
 	if canCommit then
 		api.debug.Trace("Wait for commit to finish")
 		self:WaitFor(api.undo.CommitPreview(previewToken))
+		return true
 	else
 		api.debug.Trace("Can't commit")
 		local whyNot = api.undo.GetCommitFailReasons(previewToken)
@@ -262,6 +266,7 @@ ImporterUIManager.TryCommit = function(self, previewToken)
 		api.debug.Trace("Reason: " .. table.tostring(whyNot))
 		self:MakeErrorPopup(whyNot)
 	end
+	return false
 end
 
 --- Begins a preview of the changes to be made.
