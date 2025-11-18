@@ -54,7 +54,6 @@ export default function CoasterConverter() {
       setShowInstructions(true)
     } catch (error) {
       console.error('Conversion failed:', error)
-      // You might want to show an error message to the user here
       alert('Conversion failed. Please make sure you selected a valid No Limits 2 CSV file.')
     } finally {
       setIsConverting(false)
