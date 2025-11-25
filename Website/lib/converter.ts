@@ -98,6 +98,15 @@ function distanceBetweenVectors(a: number[], b: number[]): number {
     return vectorMagnitude(subtractVectors(a, b));
 }
 
+function vectorsEq(a: number[], b: number[]) {
+    for (let i = 0; i < a.length; i++) {
+        if (a[i] !== b[i]) {
+            return false;
+        }
+    }
+    return true;
+}
+
 /**
  * Convert forward and up vectors to Euler angles (yaw, pitch, roll).
  * 
@@ -195,8 +204,8 @@ function getPosForwardsUps(csvContent: string) {
     const posForwardsUps = [];
     const lines = csvContent.split('\n');
 
-    // Skip the header row + first 0,0,0 pos
-    for (let i = 2; i < lines.length; i++) {
+    // Skip the header row
+    for (let i = 1; i < lines.length; i++) {
         const line = lines[i].trim();
         if (!line) continue;
 
@@ -217,6 +226,13 @@ function getPosForwardsUps(csvContent: string) {
         // NL2 format: row[10]=Y, row[11]=Z, row[12]=X
         // Target format: up vector transformation
         const up = [parseFloat(row[12]), parseFloat(row[10]), parseFloat(row[11])];
+
+        // Never add two identically positioned points in a row
+        // i-2 is the previous point's index in posForwardsUps
+        if (posForwardsUps.length > 0 && posForwardsUps[i-2]?.[0] && vectorsEq(posForwardsUps[i-2][0], pos)) {
+            console.log(`identical points found, skipping row ${i}`);
+            continue;
+        }
 
         posForwardsUps.push([pos, front, up]);
     }
@@ -244,6 +260,8 @@ export function convertCsvToLua(csvContent: string, enableHeartline = false, hea
         }
 
         console.log(`Loaded ${posForwardsUps.length} points from CSV file!`);
+
+        console.log(posForwardsUps)
 
         let heartlined;
         let resampled;
