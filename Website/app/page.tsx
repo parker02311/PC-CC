@@ -1,12 +1,13 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Download, AlertTriangle, FileText } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { convertCsvToLua } from "@/lib/converter"
+import { useLocalStorage } from "react-use"
 
 // Installation instructions for the modal
 const INSTALLATION_STEPS = [
@@ -23,12 +24,13 @@ export default function CoasterConverter() {
   const [file, setFile] = useState<File | null>(null)
   const [isConverting, setIsConverting] = useState(false)
   const [showInstructions, setShowInstructions] = useState(false)
-  const [enableHeartline, setenableHeartline] = useState(true)
-  // 1.1m is fvd's default heartline value, most users will probably forget to change this so a sane deafult is probably ideal
-  const [heartlineAmountString, setHeartlineAmountString] = useState('1.1')
+  const [enableHeartline, setenableHeartline] = useLocalStorage('enableHeartline', 'false')
+  const [bEnableHeartline, setBEnableHeartline] = useState(false)
+  // 1.1m is fvd's default heartline value, most users will probably forget to change this so a sane default is probably ideal
+  const [heartlineAmountString, setHeartlineAmountString] = useLocalStorage<string>('heartlineAmount', '1.1')
   const [heartlineAmount, setHeartlineAmount] = useState(1.1)
   // If segment length is set, resample the result of heartlining to preserve event segment lengths
-  const [segmentLengthString, setSegmentLengthString] = useState('2')
+  const [segmentLengthString, setSegmentLengthString] = useLocalStorage<string>('segmentLength', '2')
   const [segmentLength, setSegmentlength] = useState(2)
 
   const handleFileSelect = (selectedFile: File) => {
@@ -36,7 +38,7 @@ export default function CoasterConverter() {
   }
 
   const handleChangeEnableHeartline = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setenableHeartline(e.target.checked)
+    setenableHeartline(`${e.target.checked}`)
   }
 
   const handleChangeHeartlineValue = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -97,7 +99,7 @@ export default function CoasterConverter() {
       const csvContent = await file.text()
 
       // Convert CSV to Lua using the real converter
-      const convertedContent = convertCsvToLua(csvContent, enableHeartline, heartlineAmount, segmentLength)
+      const convertedContent = convertCsvToLua(csvContent, bEnableHeartline, heartlineAmount, segmentLength)
 
       // Create and download the converted file
       const blob = new Blob([convertedContent], { type: "text/plain" })
@@ -118,6 +120,11 @@ export default function CoasterConverter() {
       setIsConverting(false)
     }
   }
+
+  // Convert the enableHeartline string to boolean as a useEffect to fix SSR conflict w/ local storage
+  useEffect(() => {
+    setBEnableHeartline(enableHeartline === 'true')
+  }, [enableHeartline])
 
   return (
     <div>
@@ -165,8 +172,8 @@ export default function CoasterConverter() {
                     id="apply-heartline"
                     type="checkbox"
                     onChange={handleChangeEnableHeartline}
-                    value={`${enableHeartline}`}
-                    checked={enableHeartline}
+                    value={enableHeartline}
+                    checked={bEnableHeartline}
                     className="cursor-pointer block relative top-1.5"
                   />
                 </div>
@@ -179,7 +186,7 @@ export default function CoasterConverter() {
               </div>
             
 
-            <div className={`${enableHeartline ? '' : 'hidden'} space-y-2`}>
+            <div className={`${bEnableHeartline ? '' : 'hidden'} space-y-2`}>
               <div className="space-y-3">
                 <label className="text-ctp-subtext1 mb-2 block">Heartline Amount (m):</label>
                 <input
