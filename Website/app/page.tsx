@@ -1,12 +1,13 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Download, AlertTriangle, FileText } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { convertCsvToLua } from "@/lib/converter"
+import { useLocalStorage } from "react-use"
 
 // Installation instructions for the modal
 const INSTALLATION_STEPS = [
@@ -23,9 +24,69 @@ export default function CoasterConverter() {
   const [file, setFile] = useState<File | null>(null)
   const [isConverting, setIsConverting] = useState(false)
   const [showInstructions, setShowInstructions] = useState(false)
+  const [enableHeartline, setenableHeartline] = useLocalStorage('enableHeartline', 'false')
+  const [bEnableHeartline, setBEnableHeartline] = useState(false)
+  // 1.1m is fvd's default heartline value, most users will probably forget to change this so a sane default is probably ideal
+  const [heartlineAmountString, setHeartlineAmountString] = useLocalStorage<string>('heartlineAmount', '1.1')
+  const [heartlineAmount, setHeartlineAmount] = useState(1.1)
+  // If segment length is set, resample the result of heartlining to preserve event segment lengths
+  const [segmentLengthString, setSegmentLengthString] = useLocalStorage<string>('segmentLength', '2')
+  const [segmentLength, setSegmentlength] = useState(2)
 
   const handleFileSelect = (selectedFile: File) => {
     setFile(selectedFile)
+  }
+
+  const handleChangeEnableHeartline = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setenableHeartline(`${e.target.checked}`)
+  }
+
+  const handleChangeHeartlineValue = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.value === '-') {
+      // User typing negative number
+      setHeartlineAmountString(`${e.target.value}`)
+      setHeartlineAmount(0)
+      return
+    }
+    
+    const value = parseFloat(e.target.value)
+
+    if (!isNaN(value)) {
+      if (value > 10)  {
+        setHeartlineAmount(10)
+        setHeartlineAmountString(`10`)
+      } else {
+        setHeartlineAmount(value)
+        if (e.target.value[e.target.value.length - 1] === '.') {
+          setHeartlineAmountString(`${e.target.value}`)
+        } else {
+          setHeartlineAmountString(`${value}`)
+        }
+      }
+    } else {
+      setHeartlineAmountString('')
+      setHeartlineAmount(0)
+    }
+  }
+
+  const handleChangeSegmentLength = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = parseFloat(e.target.value)
+    if (!isNaN(value) && value >= 0) {
+      if (value >= 100) {
+        setSegmentlength(100)
+        setSegmentLengthString('100')
+      } else {
+        setSegmentlength(value)
+        if (e.target.value[e.target.value.length - 1] === '.') {
+          setSegmentLengthString(`${e.target.value}`)
+        } else {
+          setSegmentLengthString(`${value}`)
+        }
+      }
+    } else {
+      setSegmentlength(0)
+      setSegmentLengthString('')
+    }
   }
 
   const handleConvert = async () => {
@@ -38,7 +99,7 @@ export default function CoasterConverter() {
       const csvContent = await file.text()
 
       // Convert CSV to Lua using the real converter
-      const convertedContent = convertCsvToLua(csvContent)
+      const convertedContent = convertCsvToLua(csvContent, bEnableHeartline, heartlineAmount, segmentLength)
 
       // Create and download the converted file
       const blob = new Blob([convertedContent], { type: "text/plain" })
@@ -59,6 +120,11 @@ export default function CoasterConverter() {
       setIsConverting(false)
     }
   }
+
+  // Convert the enableHeartline string to boolean as a useEffect to fix SSR conflict w/ local storage
+  useEffect(() => {
+    setBEnableHeartline(enableHeartline === 'true')
+  }, [enableHeartline])
 
   return (
     <div>
@@ -92,20 +158,63 @@ export default function CoasterConverter() {
           </CardHeader>
           <CardContent className="space-y-4">
             {/* Simple File Input */}
-            <div className="space-y-3">
+            <div className="space-y-4">
               <input
                 type="file"
                 onChange={(e) => e.target.files?.[0] && handleFileSelect(e.target.files[0])}
                 accept=".csv,.tsv"
-                className="w-full text-sm text-ctp-text bg-ctp-crust border border-ctp-surface0 rounded-lg file:mr-4 file:py-2 file:px-4 file:border-0 file:text-sm file:font-medium file:bg-ctp-base file:text-ctp-text hover:file:bg-ctp-surface0 file:cursor-pointer transition-all hover:shadow-[0_0px_25px_-3px_var(--tw-shadow-color)] hover:shadow-ctp-crust hover:scale-101 active:scale-99"
+                className="w-full cursor-pointer text-sm text-ctp-text bg-ctp-crust border border-ctp-surface0 rounded-lg file:mr-4 file:py-2 file:px-4 file:border-0 file:text-sm file:font-medium file:bg-ctp-base file:text-ctp-text hover:file:bg-ctp-surface0 file:cursor-pointer transition-all hover:shadow-[0_0px_25px_-3px_var(--tw-shadow-color)] hover:shadow-ctp-crust"
               />
+            </div>
+              <div className="flex flex-row items-start space-x-2 py-1 px-3 hover:bg-ctp-surface0 transition-all rounded">
+                <div className="mr-3">
+                  <input
+                    id="apply-heartline"
+                    type="checkbox"
+                    onChange={handleChangeEnableHeartline}
+                    value={enableHeartline}
+                    checked={bEnableHeartline}
+                    className="cursor-pointer block relative top-1.5"
+                  />
+                </div>
+                  <label htmlFor="apply-heartline" className="block mb-1 bold cursor-pointer block space-y-3 w-full">
+                    <div>
+                      <p className="mb-1">Apply Heartlining</p>
+                      <p className="text-ctp-subtext0 text-sm">(Use this option if the csv file does not include heartline data)</p>
+                    </div>
+                </label>
+              </div>
+            
+
+            <div className={`${bEnableHeartline ? '' : 'hidden'} space-y-2`}>
+              <div className="space-y-3">
+                <label className="text-ctp-subtext1 mb-2 block">Heartline Amount (m):</label>
+                <input
+                  id="heartline"
+                  type="string"
+                  onChange={handleChangeHeartlineValue}
+                  value={heartlineAmountString}
+                  className="w-full p-2 text-sm text-ctp-text bg-ctp-crust border border-ctp-surface0 rounded-lg file:mr-4 file:py-2 file:px-4 file:border-0 file:text-sm file:font-medium file:bg-ctp-base file:text-ctp-text hover:file:bg-ctp-surface0 transition-all hover:shadow-[0_0px_25px_-3px_var(--tw-shadow-color)] hover:shadow-ctp-crust"
+                />
+              </div>
+
+              <div className="space-y-3">
+                <label className="text-ctp-subtext1 mb-2 block">Segment Length (m):</label>
+                <input
+                  id="segment-length"
+                  type="string"
+                  onChange={handleChangeSegmentLength}
+                  value={segmentLengthString}
+                  className="w-full p-2 text-sm text-ctp-text bg-ctp-crust border border-ctp-surface0 rounded-lg file:mr-4 file:py-2 file:px-4 file:border-0 file:text-sm file:font-medium file:bg-ctp-base file:text-ctp-text hover:file:bg-ctp-surface0 transition-all hover:shadow-[0_0px_25px_-3px_var(--tw-shadow-color)] hover:shadow-ctp-crust"
+                />
+              </div>
             </div>
 
             {/* Convert Button */}
             <Button
               onClick={handleConvert}
               disabled={!file || isConverting}
-              className="w-full bg-ctp-mauve text-ctp-base font-medium py-2 transition-all hover:scale-102 active:scale-98 hover:shadow-[0_0px_25px_-3px_var(--tw-shadow-color)] hover:shadow-ctp-mauve/25"
+              className={`${!file || isConverting ? '' : 'cursor-pointer'} mt-4 w-full bg-ctp-mauve text-ctp-base font-medium py-2 transition-all hover:scale-102 active:scale-98 hover:shadow-[0_0px_25px_-3px_var(--tw-shadow-color)] hover:shadow-ctp-mauve/25`}
             >
               {isConverting ? (
                 <>
@@ -162,3 +271,4 @@ export default function CoasterConverter() {
     </div>
   )
 }
+

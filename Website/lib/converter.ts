@@ -43,14 +43,14 @@ Original Creator
 /**
  * Calculate the magnitude (length) of a 3D vector
  */
-function vectorMagnitude(vector) {
+function vectorMagnitude(vector: number[]) {
     return Math.sqrt(vector[0] * vector[0] + vector[1] * vector[1] + vector[2] * vector[2]);
 }
 
 /**
  * Normalize a 3D vector to unit length
  */
-function normalizeVector(vector) {
+function normalizeVector(vector: number[]) {
     const magnitude = vectorMagnitude(vector);
     if (magnitude === 0) return [0, 0, 0];
     return [vector[0] / magnitude, vector[1] / magnitude, vector[2] / magnitude];
@@ -59,19 +59,52 @@ function normalizeVector(vector) {
 /**
  * Calculate dot product of two 3D vectors
  */
-function dotProduct(a, b) {
+function dotProduct(a: number[], b: number[]) {
     return a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
 }
 
 /**
  * Calculate cross product of two 3D vectors
  */
-function crossProduct(a, b) {
+function crossProduct(a: number[], b: number[]) {
     return [
         a[1] * b[2] - a[2] * b[1],
         a[2] * b[0] - a[0] * b[2],
         a[0] * b[1] - a[1] * b[0]
     ];
+}
+
+function addVectors(a: number[], b: number[]): number[] {
+    return [a[0] + b[0], a[1] + b[1], a[2] + b[2]];
+}
+
+function subtractVectors(a: number[], b: number[]): number[] {
+    return [a[0] - b[0], a[1] - b[1], a[2] - b[2]];
+}
+
+function scaleVector(v: number[], s: number): number[] {
+    return [v[0] * s, v[1] * s, v[2] * s];
+}
+
+function lerpVectors(a: number[], b: number[], t: number): number[] {
+    return [
+        a[0] + (b[0] - a[0]) * t,
+        a[1] + (b[1] - a[1]) * t,
+        a[2] + (b[2] - a[2]) * t
+    ];
+}
+
+function distanceBetweenVectors(a: number[], b: number[]): number {
+    return vectorMagnitude(subtractVectors(a, b));
+}
+
+function vectorsEq(a: number[], b: number[]) {
+    for (let i = 0; i < a.length; i++) {
+        if (a[i] !== b[i]) {
+            return false;
+        }
+    }
+    return true;
 }
 
 /**
@@ -81,7 +114,7 @@ function crossProduct(a, b) {
  * @param {number[]} up - Normalized up direction vector
  * @returns {number[]} Array of [yaw, pitch, roll] angles in radians
  */
-function vectorsToEuler(forward, up) {
+function vectorsToEuler(forward: number[], up: number[]) {
     // Normalize input vectors to ensure unit length
     forward = normalizeVector(forward);
     up = normalizeVector(up);
@@ -111,7 +144,7 @@ function vectorsToEuler(forward, up) {
  * @param {number} angle - Rotation angle in radians
  * @returns {number[]} Rotated 3D vector
  */
-function getRotatedVector(vector, angle) {
+function getRotatedVector(vector: number[], angle: number) {
     // Apply 2D rotation matrix to X,Y components
     const xNew = vector[0] * Math.sin(angle) - vector[1] * Math.cos(angle);
     const yNew = vector[0] * Math.cos(angle) + vector[1] * Math.sin(angle);
@@ -128,7 +161,7 @@ function getRotatedVector(vector, angle) {
  * @param {Array} posForwardsUps - Array of [position, forward, up] vector arrays
  * @returns {Array} Array of [relative_position, yaw_pitch_roll] arrays
  */
-function pfuToRelPosYpr(posForwardsUps) {
+function pfuToRelPosYpr(posForwardsUps: number[][][]) {
     const posYpr = [];
 
     // Extract the first point as reference origin and orientation
@@ -167,12 +200,12 @@ function pfuToRelPosYpr(posForwardsUps) {
  * @param {string} csvContent - Content of the CSV file to parse
  * @returns {Array} Array of [position, forward, up] vector arrays for each track point
  */
-function getPosForwardsUps(csvContent) {
+function getPosForwardsUps(csvContent: string) {
     const posForwardsUps = [];
     const lines = csvContent.split('\n');
 
-    // Skip the header row + first 0,0,0 pos
-    for (let i = 2; i < lines.length; i++) {
+    // Skip the header row
+    for (let i = 1; i < lines.length; i++) {
         const line = lines[i].trim();
         if (!line) continue;
 
@@ -194,6 +227,13 @@ function getPosForwardsUps(csvContent) {
         // Target format: up vector transformation
         const up = [parseFloat(row[12]), parseFloat(row[10]), parseFloat(row[11])];
 
+        // Never add two identically positioned points in a row
+        // i-2 is the previous point's index in posForwardsUps
+        if (posForwardsUps.length > 0 && posForwardsUps[i-2]?.[0] && vectorsEq(posForwardsUps[i-2][0], pos)) {
+            console.log(`identical points found, skipping row ${i}`);
+            continue;
+        }
+
         posForwardsUps.push([pos, front, up]);
     }
 
@@ -205,9 +245,12 @@ function getPosForwardsUps(csvContent) {
  * 
  * @param {string} csvContent - Content of the No Limits 2 CSV file
  * @param {string} originalFilename - Original filename for reference
+ * @param {boolean} enableHeartline - Re-apply heartlineing to data points if true. Requires heartlineAmount to be set
+ * @param {number} heartlineAmount - Vertical heartline offset in m
+ * @param {number} segmentLength - Segment length to re-sample heartline results for keeping equal segment lengths
  * @returns {string} Lua formatted track data
  */
-export function convertCsvToLua(csvContent) {
+export function convertCsvToLua(csvContent: string, enableHeartline = false, heartlineAmount = 0, segmentLength = 0) {
     try {
         // Parse the CSV content and extract position, forward, and up vectors
         const posForwardsUps = getPosForwardsUps(csvContent);
@@ -218,8 +261,95 @@ export function convertCsvToLua(csvContent) {
 
         console.log(`Loaded ${posForwardsUps.length} points from CSV file!`);
 
+        console.log(posForwardsUps)
+
+        let heartlined;
+        let resampled;
+
+        // Apply heartline
+        if (enableHeartline && heartlineAmount) {
+            heartlined = posForwardsUps.map(v => v)
+            // Shift positions from heartline to track center along local up vector.
+            // Positive heartlineAmount is assumed to be heartline ABOVE the track,
+            // so we move opposite the up vector.
+            heartlined = posForwardsUps.map(([pos, forward, up]) => {
+                const offset = scaleVector(up, -heartlineAmount);
+                const newPos = addVectors(pos, offset);
+                return [newPos, forward, up];
+            });
+
+            // Resample heartlined points to even segment length if segmentLength is set
+            if (segmentLength > 0 && heartlined.length > 1) {
+                const cumulative: number[] = [0];
+
+                // Build cumulative arc length along the heartlined curve
+                for (let i = 1; i < heartlined.length; i++) {
+                    const prevPos = heartlined[i - 1][0];
+                    const currPos = heartlined[i][0];
+                    const segLen = distanceBetweenVectors(prevPos, currPos);
+                    cumulative.push(cumulative[i - 1] + segLen);
+                }
+
+                const totalLength = cumulative[cumulative.length - 1];
+                const resampledPoints: number[][][] = [];
+
+                let targetS = 0;
+                let segIndex = 0;
+
+                // March along the curve at fixed arc-length spacing
+                while (targetS <= totalLength && segIndex < heartlined.length - 1) {
+                    // Find the segment [segIndex, segIndex + 1] that contains targetS
+                    while (
+                        segIndex < heartlined.length - 2 &&
+                        cumulative[segIndex + 1] < targetS
+                    ) {
+                        segIndex++;
+                    }
+
+                    const s0 = cumulative[segIndex];
+                    const s1 = cumulative[segIndex + 1];
+                    const span = s1 - s0 || 1; // avoid divide-by-zero
+                    const t = (targetS - s0) / span;
+
+                    const [pos0, f0, u0] = heartlined[segIndex];
+                    const [pos1, f1, u1] = heartlined[segIndex + 1];
+
+                    // Position: simple linear interpolation along the polyline
+                    const pos = lerpVectors(pos0, pos1, t);
+
+                    // Orientation: lerp forward/up, then re-orthonormalize
+                    let forward = normalizeVector(lerpVectors(f0, f1, t));
+                    let up = normalizeVector(lerpVectors(u0, u1, t));
+
+                    // Make forward orthogonal to up via Gram–Schmidt
+                    const dotFU = dotProduct(forward, up);
+                    forward = normalizeVector([
+                        forward[0] - up[0] * dotFU,
+                        forward[1] - up[1] * dotFU,
+                        forward[2] - up[2] * dotFU
+                    ]);
+
+                    resampledPoints.push([pos, forward, up]);
+
+                    targetS += segmentLength;
+                }
+
+                // Ensure the last point is included
+                const lastOriginal = heartlined[heartlined.length - 1];
+                const lastResampled = resampledPoints[resampledPoints.length - 1];
+                if (
+                    !lastResampled ||
+                    distanceBetweenVectors(lastResampled[0], lastOriginal[0]) > 1e-4
+                ) {
+                    resampledPoints.push(lastOriginal);
+                }
+
+                resampled = resampledPoints;
+            }
+        }
+
         // Convert absolute positions/orientations to relative positions and Euler angles
-        const relPosYprs = pfuToRelPosYpr(posForwardsUps);
+        const relPosYprs = pfuToRelPosYpr(resampled ?? heartlined ?? posForwardsUps);
         console.log(`Converted ${relPosYprs.length} points to relative coordinates!`);
 
         const lines = [];
