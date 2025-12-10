@@ -63,3 +63,14 @@ Massive thank you to **Inaki** for the original effort to create a PC1 importer,
 Another massive thank you to **Distantz** for creating the original NL2 CSV to Lua python converter which the website is based on.
 
 And of course, thank you to **coppertime** and the rest of the modding community for their support and listening to my weeks of trying to figure out crashes.
+
+## Contributors
+
+<!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
+<!-- prettier-ignore-start -->
+<!-- markdownlint-disable -->
+
+<!-- markdownlint-restore -->
+<!-- prettier-ignore-end -->
+
+<!-- ALL-CONTRIBUTORS-LIST:END -->
