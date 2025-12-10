@@ -8,6 +8,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.0-alpha.4] - 2025-12-10
+
+### Added
+
+- Added the ability to add heartlines while converting from CSV to Lua. (#1)
+
+### Fixed
+
+- Converter now strips identicle points when converting from CSV to Lua to reduce import errors. (#1)
+
 ## [1.0.0-alpha.3] - 2025-07-05
 
 ### Fixed
@@ -32,7 +42,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Initial version of the mod.
 - Initial version of the website.
 
-[unreleased]: https://github.com/Redon-Tech/Emergency-Vehicle-Creator/compare/1.0.0-alpha.3...main
+[unreleased]: https://github.com/Redon-Tech/Emergency-Vehicle-Creator/compare/1.0.0-alpha.4...main
 [1.0.0-alpha.1]: https://github.com/Redon-Tech/Emergency-Vehicle-Creator/releases/tag/1.0.0-alpha.1
 [1.0.0-alpha.2]: https://github.com/Redon-Tech/Emergency-Vehicle-Creator/releases/tag/1.0.0-alpha.2
 [1.0.0-alpha.3]: https://github.com/Redon-Tech/Emergency-Vehicle-Creator/releases/tag/1.0.0-alpha.3
+[1.0.0-alpha.4]: https://github.com/Redon-Tech/Emergency-Vehicle-Creator/releases/tag/1.0.0-alpha.4
