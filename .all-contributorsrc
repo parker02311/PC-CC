@@ -1,0 +1,28 @@
+{
+  "files": [
+    "README.md"
+  ],
+  "imageSize": 100,
+  "commit": false,
+  "commitType": "docs",
+  "commitConvention": "angular",
+  "contributors": [
+    {
+      "login": "evanpipta",
+      "name": "Evan Pipta",
+      "avatar_url": "https://avatars.githubusercontent.com/u/9023427?v=4",
+      "profile": "https://github.com/evanpipta",
+      "contributions": [
+        "ideas",
+        "design",
+        "code"
+      ]
+    }
+  ],
+  "contributorsPerLine": 7,
+  "skipCi": true,
+  "repoType": "github",
+  "repoHost": "https://github.com",
+  "projectName": "PC-CC",
+  "projectOwner": "parker02311"
+}
