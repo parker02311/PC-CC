@@ -69,6 +69,8 @@ And of course, thank you to **coppertime** and the rest of the modding community
 
 ## Contributors
 
+Massive shoutout to the following people for their contributions to this project! See the [Emoji Key](https://allcontributors.org/emoji-key/)! (Contributing list proovided by [All Contributors](https://allcontributors.org))
+
 <!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
 <!-- prettier-ignore-start -->
 <!-- markdownlint-disable -->
