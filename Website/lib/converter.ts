@@ -229,7 +229,7 @@ function getPosForwardsUps(csvContent: string) {
 
         // Never add two identically positioned points in a row
         // i-2 is the previous point's index in posForwardsUps
-        if (posForwardsUps.length > 0 && posForwardsUps[i-2]?.[0] && vectorsEq(posForwardsUps[i-2][0], pos)) {
+        if (posForwardsUps.length > 0 && posForwardsUps[i - 2]?.[0] && vectorsEq(posForwardsUps[i - 2][0], pos)) {
             console.log(`identical points found, skipping row ${i}`);
             continue;
         }
@@ -319,7 +319,7 @@ export function convertCsvToLua(csvContent: string, enableHeartline = false, hea
 
                     // Orientation: lerp forward/up, then re-orthonormalize
                     let forward = normalizeVector(lerpVectors(f0, f1, t));
-                    let up = normalizeVector(lerpVectors(u0, u1, t));
+                    const up = normalizeVector(lerpVectors(u0, u1, t));
 
                     // Make forward orthogonal to up via Gram–Schmidt
                     const dotFU = dotProduct(forward, up);
