@@ -75,6 +75,7 @@ Massive shoutout to the following people for their contributions to this project
   <tbody>
     <tr>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/evanpipta"><img src="https://avatars.githubusercontent.com/u/9023427?v=4?s=100" width="100px;" alt="Evan Pipta"/><br /><sub><b>Evan Pipta</b></sub></a><br /><a href="#ideas-evanpipta" title="Ideas, Planning, & Feedback">🤔</a> <a href="#design-evanpipta" title="Design">🎨</a> <a href="https://github.com/parker02311/PC-CC/commits?author=evanpipta" title="Code">💻</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://redon.tech/"><img src="https://avatars.githubusercontent.com/u/35582919?v=4?s=100" width="100px;" alt="Parker"/><br /><sub><b>Parker</b></sub></a><br /><a href="https://github.com/parker02311/PC-CC/commits?author=parker02311" title="Code">💻</a> <a href="#design-parker02311" title="Design">🎨</a> <a href="#maintenance-parker02311" title="Maintenance">🚧</a> <a href="https://github.com/parker02311/PC-CC/issues?q=author%3Aparker02311" title="Bug reports">🐛</a></td>
     </tr>
   </tbody>
 </table>
