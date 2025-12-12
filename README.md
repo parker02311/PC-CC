@@ -1,7 +1,4 @@
 <h1 align="center"> <img src="/Website/app/icon0.svg" alt="Icon" height=35 width=35 style="vertical-align: middle;" /> Planet Coaster : Coaster Converter</h1>
-<!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
-[![All Contributors](https://img.shields.io/badge/all_contributors-1-orange.svg?style=flat-square)](#contributors-)
-<!-- ALL-CONTRIBUTORS-BADGE:END -->
 
 <div align="center">
 
@@ -65,7 +62,7 @@ Massive thank you to **Inaki** for the original effort to create a PC1 importer,
 
 Another massive thank you to **Distantz** for creating the original NL2 CSV to Lua python converter which the website is based on.
 
-And of course, thank you to **coppertime** and the rest of the modding community for their support and listening to my weeks of trying to figure out crashes.
+And of course, thank you to **Coppertine** and the rest of the modding community for their support and listening to my weeks of trying to figure out crashes.
 
 ## Contributors
 
